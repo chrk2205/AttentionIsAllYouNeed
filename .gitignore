@@ -1,0 +1,6 @@
+**.json
+.venv
+.ruff_cache
+.env
+test.ipynb
+__pycache__
