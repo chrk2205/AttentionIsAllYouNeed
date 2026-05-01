@@ -2,8 +2,12 @@
 from src.arguments import TrainArgs
 from src.tokenize import load_train_save_bpe
 from datasets import load_dataset
-from src.dataset import English2HindiDataset
+from src.dataset import English2HindiDataset, collate_fn
 import argparse
+from torch.utils.data import DataLoader
+from src.trainer import LitTrainer
+from src.model import Transformer
+import lightning as L
 
 # @run_and_exit(TrainArgs, description="My Training CLI")
 def train(train_args : TrainArgs):
@@ -23,17 +27,19 @@ def train(train_args : TrainArgs):
         decoder_tokenizer=hi_tokenizer,
         split="validation"
     )
-    
 
-    for item in validation_dataset:
-        pass
+    train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True, collate_fn=collate_fn)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=4, shuffle=False, collate_fn=collate_fn)
 
-    for item in train_dataset:
-        pass
+    model = Transformer(vocab_size=len(en_tokenizer.get_vocab()), d_model=512, d_ff=2048, num_layers=8, dropout=0.1)
+    lit_model = LitTrainer(model)
 
-    pass
-
-
+    trainer = L.Trainer(
+        max_epochs=10,
+        accelerator="auto", # Automatically detects GPU/TPU/MPS
+        devices=1
+    )
+    trainer.fit(model=lit_model, train_dataloaders=train_dataloader, val_dataloaders=validation_dataloader)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
