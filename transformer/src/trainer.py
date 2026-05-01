@@ -62,6 +62,21 @@ class LitTrainer(L.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        return optimizer
-
+        optimizer = torch.optim.Adam(self.parameters(), lr=5e-4, eps=1e-9)
+        
+        # Linear warmup followed by cosine decay
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer,
+            max_lr=5e-4,
+            total_steps=self.trainer.estimated_stepping_batches,
+            pct_start=0.1, # Warmup for first 10% of training
+            anneal_strategy='cos'
+        )
+        
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "interval": "step",
+                "scheduler": scheduler
+            }
+        }
