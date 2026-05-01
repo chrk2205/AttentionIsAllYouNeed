@@ -28,16 +28,16 @@ def train(train_args : TrainArgs):
         split="validation"
     )
 
-    train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True, collate_fn=collate_fn)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=4, shuffle=False, collate_fn=collate_fn)
+    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True, collate_fn=collate_fn, num_workers=8, persistent_workers=True)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn, num_workers=8, persistent_workers=True)
 
-    model = Transformer(vocab_size=len(en_tokenizer.get_vocab()), d_model=512, d_ff=2048, num_layers=8, dropout=0.1)
-    lit_model = LitTrainer(model)
+    model = Transformer(en_vocab_size=len(en_tokenizer.get_vocab()), de_vocab_size=len(hi_tokenizer.get_vocab()), d_model=256, d_ff=1024, num_layers=4, dropout=0.0)
+    lit_model = LitTrainer(model, en_tokenizer, hi_tokenizer)
 
     trainer = L.Trainer(
         max_epochs=10,
         accelerator="auto", # Automatically detects GPU/TPU/MPS
-        devices=1
+        devices=1,
     )
     trainer.fit(model=lit_model, train_dataloaders=train_dataloader, val_dataloaders=validation_dataloader)
 

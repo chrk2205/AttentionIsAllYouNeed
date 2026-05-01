@@ -4,4 +4,4 @@ lint:
 
 .PHONY: train
 train:
-	uv run python -m src.train --input_file test
+	nohup uv run python -m src.train --input_file test &
