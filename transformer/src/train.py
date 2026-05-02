@@ -19,7 +19,7 @@ def train(train_args : TrainArgs):
     batch_size = 64
 
     wandb_logger = WandbLogger(project='learn transformer ')
-    # wandb_logger.experiment.config["batch_size"] = batch_size
+    wandb_logger.experiment.config["batch_size"] = batch_size
 
     dataset = load_dataset("Helsinki-NLP/opus-100", "en-hi", split="train")
     en_tokenizer = load_train_save_bpe(tokenizer_name="en", train_data=[v['en'] for v in dataset['translation']])
@@ -49,7 +49,8 @@ def train(train_args : TrainArgs):
         accelerator="auto", # Automatically detects GPU/TPU/MPS
         devices="auto",
         check_val_every_n_epoch=3,
-        callbacks=[early_stop_callback]
+        callbacks=[early_stop_callback],
+        logger=wandb_logger 
     )
     trainer.fit(model=lit_model, train_dataloaders=train_dataloader, val_dataloaders=validation_dataloader)
     wandb.finish()
