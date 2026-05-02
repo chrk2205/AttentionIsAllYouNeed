@@ -37,8 +37,8 @@ def train(train_args : TrainArgs):
         split="train"
     )
 
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, num_workers=8, persistent_workers=True)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn, num_workers=8, persistent_workers=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, num_workers=4, persistent_workers=True)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn, num_workers=4, persistent_workers=True)
 
     model = Transformer(en_vocab_size=len(en_tokenizer.get_vocab()), de_vocab_size=len(hi_tokenizer.get_vocab()), d_model=256, d_ff=1024, num_layers=4, dropout=0.0)
     lit_model = LitTrainer(model, en_tokenizer, hi_tokenizer)
