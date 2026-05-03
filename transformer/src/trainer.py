@@ -24,7 +24,7 @@ class LitTrainer(L.LightningModule):
 
         logits = logits.view(B*T, C)
         label = label.view(B*T)
-        loss = F.cross_entropy(logits, label)
+        loss = F.cross_entropy(logits, label, label_smoothing=0.1)
         
         self.log("train_loss", loss, prog_bar=True)
         return loss
@@ -44,7 +44,7 @@ class LitTrainer(L.LightningModule):
 
         logits = logits.view(B*T, C)
         label = original_label.view(B*T)
-        loss = F.cross_entropy(logits, label)
+        loss = F.cross_entropy(logits, label, label_smoothing=0.1)
         
         self.log("valid_loss", loss, prog_bar=True)
 
@@ -62,21 +62,27 @@ class LitTrainer(L.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=5e-4, eps=1e-9)
+        # Use AdamW for built-in weight decay (regularization)
+        optimizer = torch.optim.AdamW(
+            self.parameters(), 
+            lr=1e-4, 
+            eps=1e-9, 
+            weight_decay=0.01
+        )
         
         # Linear warmup followed by cosine decay
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
             max_lr=5e-4,
             total_steps=self.trainer.estimated_stepping_batches,
-            pct_start=0.1, # Warmup for first 10% of training
+            pct_start=0.1,
             anneal_strategy='cos'
         )
-        
+
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
+                "scheduler": scheduler,
                 "interval": "step",
-                "scheduler": scheduler
-            }
+            },
         }

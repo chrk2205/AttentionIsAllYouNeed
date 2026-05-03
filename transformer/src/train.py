@@ -41,7 +41,7 @@ def train(train_args : TrainArgs):
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, num_workers=4, persistent_workers=True)
     validation_dataloader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn, num_workers=4, persistent_workers=True)
 
-    model = Transformer(en_vocab_size=len(en_tokenizer.get_vocab()), de_vocab_size=len(hi_tokenizer.get_vocab()), d_model=256, d_ff=1024, num_layers=4, dropout=0.0)
+    model = Transformer(en_vocab_size=len(en_tokenizer.get_vocab()), de_vocab_size=len(hi_tokenizer.get_vocab()), d_model=256, d_ff=1024, num_layers=4, dropout=0.1)
     lit_model = LitTrainer(model, en_tokenizer, hi_tokenizer)
 
     early_stop_callback = EarlyStopping(monitor="valid_loss", min_delta=0.00, patience=3, verbose=True, mode="max")
