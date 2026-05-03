@@ -35,7 +35,7 @@ def train(train_args : TrainArgs):
     validation_dataset = English2HindiDataset(
         encoder_tokenizer=en_tokenizer,
         decoder_tokenizer=hi_tokenizer,
-        split="train"
+        split="validation"
     )
 
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, num_workers=4, persistent_workers=True)
@@ -44,9 +44,9 @@ def train(train_args : TrainArgs):
     model = Transformer(en_vocab_size=len(en_tokenizer.get_vocab()), de_vocab_size=len(hi_tokenizer.get_vocab()), d_model=256, d_ff=1024, num_layers=4, dropout=0.0)
     lit_model = LitTrainer(model, en_tokenizer, hi_tokenizer)
 
-    early_stop_callback = EarlyStopping(monitor="val_accuracy", min_delta=0.00, patience=3, verbose=True, mode="max")
+    early_stop_callback = EarlyStopping(monitor="valid_loss", min_delta=0.00, patience=3, verbose=True, mode="max")
     checkpoint_callback = ModelCheckpoint(
-        monitor="val_accuracy",
+        monitor="valid_loss",
         mode="max",
         save_top_k=1,
         filename="best-{epoch}-{val_accuracy:.4f}",
