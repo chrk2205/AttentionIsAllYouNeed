@@ -32,7 +32,7 @@ class English2HindiDataset(Dataset):
 
     def __init__(self, encoder_tokenizer, decoder_tokenizer, split = "train", seq_len = 100):
 
-        self.dataset = load_dataset("Helsinki-NLP/opus-100", "en-hi", split=split)
+        self.dataset = load_dataset("cfilt/iitb-english-hindi",  split=split)
 
         self.encoder_tokenizer = encoder_tokenizer
         self.decoder_tokenizer = decoder_tokenizer

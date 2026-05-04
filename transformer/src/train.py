@@ -22,7 +22,7 @@ def train(train_args : TrainArgs):
     wandb_logger = WandbLogger(project='learn transformer ', log_model="all")
     # wandb_logger.experiment.config["batch_size"] = batch_size
 
-    dataset = load_dataset("Helsinki-NLP/opus-100", "en-hi", split="train")
+    dataset = load_dataset("cfilt/iitb-english-hindi", split="train")
     en_tokenizer = load_train_save_bpe(tokenizer_name="en", train_data=[v['en'] for v in dataset['translation']])
     hi_tokenizer = load_train_save_bpe(tokenizer_name="hi", train_data=[v['hi'] for v in dataset['translation']])
 
@@ -52,10 +52,10 @@ def train(train_args : TrainArgs):
         filename="best-{epoch}-{val_accuracy:.4f}",
     )
     trainer = L.Trainer(
-        max_epochs=50,
+        max_epochs=10,
         accelerator="auto", # Automatically detects GPU/TPU/MPS
         devices="auto",
-        check_val_every_n_epoch=3,
+        check_val_every_n_epoch=1,
         callbacks=[early_stop_callback, checkpoint_callback],
         logger=wandb_logger 
     )
